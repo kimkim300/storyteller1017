@@ -145,11 +145,13 @@
             font-weight: bold;
             transition: background-color 0.2s;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+            margin-left: 10px; /* 버튼 간 간격 */
         }
 
         #home-button:hover, #gallery-home-button:hover {
             background-color: #7b1fa2;
         }
+        
 
         /* 캔버스 스타일 (이어 말하기 부사 표시) */
         #conjunction-canvas {
@@ -371,6 +373,64 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* ----- 커스텀 확인 모달 스타일 (재시작 확인 모달) ----- */
+        #custom-confirm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2500; /* 가장 위에 */
+        }
+
+        .confirm-box {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+        }
+
+        .confirm-box p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #1e88e5; /* 질문 색상 */
+        }
+
+        .confirm-actions button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #confirm-yes {
+            background-color: #4a90e2; /* 파란색 */
+            color: white;
+        }
+        #confirm-yes:hover {
+            background-color: #357bd8;
+        }
+
+        #confirm-no {
+            background-color: #ccc;
+        }
+        #confirm-no:hover {
+            background-color: #bbb;
+        }
+        /* ------------------------------------------- */
+
+
         /* 미디어 쿼리 (모바일 반응형) */
         @media (max-width: 600px) {
             body { padding: 10px; }
@@ -391,6 +451,19 @@
         <div class="spinner"></div>
         <span id="loading-message">AI 선생님이 문맥을 확인 중이에요...</span>
     </div>
+
+    <!-- V20: 재시작 확인 커스텀 모달 -->
+    <div id="custom-confirm-modal" class="custom-confirm-modal">
+        <div class="confirm-box">
+            <!-- V21: 메시지 변경 -->
+            <p id="confirm-message">이야기가 성공적으로 저장되었습니다.<br>새로운 이야기를 시작하시겠습니까?</p>
+            <div class="confirm-actions">
+                <button id="confirm-yes">네, 새 이야기 시작</button>
+                <button id="confirm-no" onclick="closeCustomConfirmModal()">아니오, 잠시 쉴래요</button>
+            </div>
+        </div>
+    </div>
+
 
     <div class="container">
         <!-- 수정: 메인 제목 변경 -->
@@ -423,7 +496,11 @@
         <div id="game-area">
             <div id="group-header">
                 <div id="group-info"></div>
-                <button id="home-button" onclick="goHome()">🏠 홈으로 돌아가기</button>
+                <!-- V21 수정: 다시 시작 버튼 삭제 -->
+                <div> 
+                    <!-- <button id="reset-button" onclick="showCustomConfirmModal()">♻️ 다시 시작</button> -->
+                    <button id="home-button" onclick="goHome()">🏠 홈으로 돌아가기</button>
+                </div>
             </div>
 
             <canvas id="conjunction-canvas"></canvas>
@@ -606,6 +683,8 @@
         const storyTitleInput = document.getElementById('story-title'); // 추가된 제목 입력창
         const detailStoryElement = document.getElementById('detail-story');
         const detailTitleElement = document.getElementById('detail-title');
+        const confirmModal = document.getElementById('custom-confirm-modal'); // V20: 확인 모달
+        const confirmYesButton = document.getElementById('confirm-yes');     // V20: 확인 버튼
         
         // 캔버스 크기 조정 (반응형 대응)
         const resizeCanvas = () => {
@@ -778,6 +857,49 @@
             // 캔버스 초기화
             drawConjunction();
         };
+
+        // V20: 모둠 스토리 초기화 함수 (다시 시작)
+        window.resetGroupStory = async () => {
+            if (!gameState.groupId || !window.db) return;
+            showLoading(`[${gameState.groupId} 모둠] 이야기를 지우는 중...`);
+            closeCustomConfirmModal();
+
+            try {
+                const groupRef = window.getGroupDocRef(gameState.groupId);
+                
+                // Firestore 문서 업데이트로 스토리와 상태 초기화
+                await window.updateDoc(groupRef, {
+                    story: [],
+                    isSaved: false,
+                    lastUpdated: Date.now()
+                });
+
+                // UI는 onSnapshot을 통해 자동으로 업데이트됨
+                // 입력창 및 제목 초기화는 onSnapshot 콜백 내에서 간접적으로 처리됨
+                storyTitleInput.value = '';
+                showMessage(`[${gameState.groupId} 모둠]의 이야기가 깨끗하게 지워졌습니다. 새로운 이야기를 시작하세요!`, 'info');
+
+            } catch (error) {
+                console.error("Story Reset Error:", error);
+                showMessage("이야기 초기화 중 오류가 발생했습니다.", 'error');
+            } finally {
+                hideLoading();
+            }
+        };
+
+        // V20: 커스텀 확인 모달 표시 (V21: 저장 후 재시작 확인용)
+        window.showCustomConfirmModal = () => {
+            confirmModal.style.display = 'flex';
+        };
+
+        // V20: 커스텀 확인 모달 닫기
+        window.closeCustomConfirmModal = () => {
+            confirmModal.style.display = 'none';
+        };
+        
+        // V20: '예' 버튼에 이벤트 리스너 연결 (V21: 저장 후 초기화)
+        confirmYesButton.onclick = window.resetGroupStory;
+
 
         // --- 4. 입력 상태 및 접속 부사 관리 ---
         
@@ -1003,23 +1125,29 @@
                 // 1. 참여자 목록 정리 (중복 제거 및 이름만 추출)
                 const authorNames = [...new Set(gameState.story.map(item => item.userName))];
                 
-                // 2. 전체 스토리 텍스트 생성 (접속 부사를 [ ]로 감싸서 저장)
+                // 2. 전체 스토리 텍스트 생성 (V22: 괄호 제거)
                 const fullStoryText = gameState.story.map((item, index) => {
-                    // V17 수정: (시작) 태그 제거
-                    if (index === 0) {
-                        return `${item.text}`;
+                    // 원본 텍스트(접속 부사 포함)를 가져와서, 문장 앞에 붙어있을 수 있는 접속 부사를 제거합니다.
+                    // 이 로직은 괄호를 제거하는 데 최적화됩니다.
+                    let cleanText = item.text.trim();
+
+                    // 첫 문장이 아닐 경우, 요구되었던 접속 부사가 문장 앞에 있을 수 있으므로 제거 시도 (선택 사항)
+                    if (index !== 0) {
+                        const conj = item.conjunction;
+                        // 문장의 시작이 접속 부사와 공백으로 이루어져 있으면 접속 부사를 제거합니다.
+                        const startRegex = new RegExp(`^${conj}\\s*`, 'i');
+                        cleanText = cleanText.replace(startRegex, '');
                     }
-                    // V17/V18 수정: [ ] 기호를 사용하여 저장
-                    const regex = new RegExp(`(${item.conjunction})`, 'gi'); // 단어 경계 제거
-                    const textWithBracket = item.text.replace(regex, `[ $1 ]`);
-                    return textWithBracket; 
+                    
+                    // 각 문장이 띄어쓰기로 구분되어 연결되도록 합니다.
+                    return cleanText;
                 }).join(' ');
 
                 // 3. 갤러리 컬렉션에 새 문서 추가 (addDoc 사용)
                 await window.addDoc(galleryRef, {
                     groupId: gameState.groupId,
                     title: storyTitle, // 추가된 제목
-                    fullStory: fullStoryText,
+                    fullStory: fullStoryText, // 괄호 없는 깔끔한 텍스트 저장
                     authors: authorNames,
                     // 수정: window.serverTimestamp() 함수를 사용
                     timestamp: window.serverTimestamp() || Date.now(), 
@@ -1029,8 +1157,11 @@
                 // 4. 현재 모둠 문서에 isSaved 플래그 업데이트
                 await window.updateDoc(groupRef, { isSaved: true });
                 
-                // gameState와 UI는 onSnapshot을 통해 자동으로 업데이트됨
-                showMessage("이야기가 '우리 반 글 모음'에 저장되었습니다! 🎉", 'info');
+                // V21 수정: 저장 완료 후 '다시 시작' 확인 모달 띄우기
+                showCustomConfirmModal(); 
+
+                // showMessage는 confirm modal이 닫힌 후 뜨도록 주석 처리
+                // showMessage("이야기가 '우리 반 글 모음'에 저장되었습니다! 🎉", 'info');
             } catch (error) {
                 console.error("Story Save Error:", error);
                 showMessage("저장 중 오류가 발생했습니다. 다시 시도해 주세요.", 'error');
@@ -1041,6 +1172,12 @@
 
         // --- 8. 갤러리 화면 표시 및 로드 로직 ---
         window.showGallery = () => {
+            // 리스너가 있다면 해제 (다른 모둠 데이터 리스너)
+            if (window.unsubscribeSnapshot) {
+                window.unsubscribeSnapshot(); 
+                window.unsubscribeSnapshot = null;
+            }
+            
             // UI 전환
             document.getElementById('group-selection').style.display = 'none';
             document.getElementById('game-area').style.display = 'none';
