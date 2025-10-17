@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이어 말하기 협동 스토리텔러</title>
+    <style>
+        /* 기본 스타일 및 반응형 설정 (Tailwind CSS 대체) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f8ff; /* 연한 하늘색 배경 */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* 메인 컨테이너 */
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* 제목 스타일 */
+        h1 {
+            color: #4a90e2; /* 파란색 */
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        /* 모둠 선택 화면 */
+        #group-selection {
+            text-align: center;
+            padding: 40px 0;
+            /* display: flex로 설정되어있지 않으므로, JS에서 block 사용 */
+        }
+
+        .input-name-area {
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #user-name {
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 80%;
+            max-width: 300px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .group-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .group-button {
+            background-color: #ffc107; /* 노란색 버튼 */
+            color: #333;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            /* 6개 버튼이 한 줄에 3개씩 들어갈 수 있도록 너비 조정 */
+            width: 100px; 
+            min-width: 80px;
+        }
+
+        .group-button:hover {
+            background-color: #ffb300;
+            transform: translateY(-2px);
+        }
+
+        .secondary-button {
+            background-color: #4a90e2; /* 파란색 버튼 */
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .secondary-button:hover {
+            background-color: #357bd8;
+            transform: translateY(-2px);
+        }
+
+        /* 메인 게임 화면 */
+        #game-area {
+            display: none;
+            flex-direction: column;
+        }
+
+        #group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            z-index: 10;
+        }
+
+        #group-info {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e91e63; /* 분홍색 강조 */
+        }
+        
+        /* 홈 버튼 공통 스타일 */
+        #home-button, #gallery-home-button {
+            background-color: #9c27b0; /* 보라색 */
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+        }
+
+        #home-button:hover, #gallery-home-button:hover {
+            background-color: #7b1fa2;
+        }
+
+        /* 캔버스 스타일 (이어 말하기 부사 표시) */
+        #conjunction-canvas {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 15px;
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            background-color: #e3f2fd; /* 연한 파란색 */
+            box-sizing: border-box;
+        }
+
+        /* 스토리보드 */
+        #storyboard {
+            min-height: 250px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            overflow-y: auto;
+            line-height: 1.6;
+            font-size: 1rem;
+            white-space: pre-wrap; /* 줄바꿈 유지 */
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 스토리보드 내 접속 부사 강조 */
+        .conjunction-highlight {
+            font-weight: bold;
+            color: #4a90e2;
+            background-color: #eaf3ff; /* 연한 파란색 배경 */
+            padding: 1px 4px;
+            border-radius: 4px;
+            margin: 0 2px;
+        }
+        
+        /* 입력 영역 */
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        #sentence-input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        #sentence-input:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+
+        #submit-button, #save-button {
+            background-color: #4CAF50; /* 녹색 */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        #submit-button:hover, #save-button:hover {
+            background-color: #45a049;
+            transform: translateY(-1px);
+        }
+
+        #submit-button:disabled, #save-button:disabled {
+            background-color: #bdbdbd;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 메시지 박스 */
+        .message-box {
+            background-color: #ffe0b2;
+            color: #d84315;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+        
+        /* 저장된 글 모음 화면 */
+        #gallery-area {
+            display: none;
+            padding: 20px 0;
+        }
+
+        .gallery-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .gallery-list li {
+            background-color: #e3f2fd;
+            border: 1px solid #c6dafc;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: 500;
+        }
+
+        .gallery-list li:hover {
+            background-color: #bbdefb;
+        }
+
+        .gallery-detail-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .detail-content {
+            /* 이미지 저장 대상이 되기 때문에 padding, background 설정 */
+            background: white;
+            padding: 30px; 
+            border-radius: 12px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .detail-content h2 {
+            color: #e91e63;
+            margin-top: 0;
+        }
+
+        .detail-content p {
+            white-space: pre-wrap;
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .close-modal-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e91e63;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 2001; /* 닫기 버튼이 항상 위에 있도록 */
+        }
+        
+        /* 이미지 저장 버튼 스타일 */
+        #save-image-button {
+            background-color: #00bcd4; /* 청록색 */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 20px;
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+        
+        #save-image-button:hover {
+            background-color: #0097a7;
+        }
+
+        /* 로딩 애니메이션 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+            font-size: 1.2rem;
+            color: #4a90e2;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4a90e2;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 미디어 쿼리 (모바일 반응형) */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            h1 { font-size: 1.5rem; }
+            /* 6개 버튼이 깨지지 않도록 간격 조정 */
+            .group-buttons { gap: 10px; }
+            .group-button { padding: 12px 10px; width: 80px; font-size: 0.9rem; }
+            #storyboard { min-height: 200px; font-size: 0.9rem; }
+            .input-area { flex-direction: column; }
+            #submit-button { width: 100%; padding: 10px; }
+            .detail-content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <span id="loading-message">AI 선생님이 문맥을 확인 중이에요...</span>
+    </div>
+
+    <div class="container">
+        <!-- 수정: 메인 제목 변경 -->
+        <h1>✨ 이어 주는 말로 이야기 만들기 ✨</h1>
+
+        <!-- 1. 모둠 선택 화면 -->
+        <div id="group-selection">
+            <div class="input-name-area">
+                <p style="font-size: 1.1rem; font-weight: bold;">📝 내 이름 (필수)</p>
+                <input type="text" id="user-name" placeholder="여기에 이름을 작성하세요 (예: 김OO)">
+            </div>
+            
+            <p style="font-size: 1.2rem; margin-bottom: 25px;">함께 이야기할 **모둠 번호**를 선택해 주세요.</p>
+            <div class="group-buttons">
+                <button class="group-button" onclick="selectGroup(1)">1 모둠</button>
+                <button class="group-button" onclick="selectGroup(2)">2 모둠</button>
+                <button class="group-button" onclick="selectGroup(3)">3 모둠</button>
+                <button class="group-button" onclick="selectGroup(4)">4 모둠</button>
+                <button class="group-button" onclick="selectGroup(5)">5 모둠</button>
+                <!-- V18 수정: 6 모둠 버튼 추가 -->
+                <button class="group-button" onclick="selectGroup(6)">6 모둠</button>
+            </div>
+            
+            <button class="secondary-button" onclick="showGallery()">📚 우리 반 글 모음</button>
+            
+            <p id="user-id-display" style="margin-top: 30px; font-size: 0.8rem; color: #888;">사용자 ID: (인증 후 표시됩니다)</p>
+        </div>
+
+        <!-- 2. 메인 게임 화면 -->
+        <div id="game-area">
+            <div id="group-header">
+                <div id="group-info"></div>
+                <button id="home-button" onclick="goHome()">🏠 홈으로 돌아가기</button>
+            </div>
+
+            <canvas id="conjunction-canvas"></canvas>
+            
+            <!-- 추가: 이야기 제목 입력 영역 -->
+            <div style="margin-bottom: 15px; width: 100%;">
+                <input type="text" id="story-title" placeholder="이야기 제목을 지어주세요! (저장 시 사용)" style="width: 100%; padding: 10px; border: 2px solid #ffc107; border-radius: 8px; font-size: 1rem; text-align: center;">
+            </div>
+
+            <div id="storyboard">
+                <!-- 이야기가 여기에 표시됩니다 -->
+            </div>
+
+            <div id="message-box" class="message-box"></div>
+
+            <div class="input-area">
+                <input type="text" id="sentence-input" placeholder="여기에 이어질 문장을 작성하세요." disabled>
+                <button id="submit-button" onclick="submitSentence()" disabled>제출</button>
+            </div>
+            
+            <!-- 저장 버튼 -->
+            <button id="save-button" onclick="saveStory()" disabled style="margin-top: 10px; width: 100%;">이야기 완성 및 저장</button>
+
+        </div>
+        
+        <!-- 3. 저장된 글 모음 갤러리 화면 -->
+        <div id="gallery-area">
+            <div id="group-header">
+                <h2 style="color: #4a90e2; font-size: 1.5rem; margin: 0;">📚 우리 반 글 모음</h2>
+                <!-- 수정: 갤러리 홈 버튼 디자인 개선 -->
+                <button id="gallery-home-button" onclick="goHome()">🏠 홈으로 돌아가기</button>
+            </div>
+            
+            <ul id="gallery-list" class="gallery-list">
+                <!-- 저장된 스토리 목록이 여기에 로드됩니다 -->
+            </ul>
+        </div>
+    </div>
+    
+    <!-- 4. 저장된 글 상세 보기 모달 -->
+    <div id="gallery-detail-modal" class="gallery-detail-modal" onclick="closeDetailModal(event)">
+        <div class="detail-content" onclick="event.stopPropagation()">
+            <button class="close-modal-button" onclick="closeDetailModal()">X</button>
+            
+            <!-- 저장된 내용을 보여주는 영역 -->
+            <h2 id="detail-title"></h2>
+            <p id="detail-story"></p>
+            <p style="font-size: 0.9em; color: #666; margin-top: 20px;">참여 학생: <span id="detail-authors"></span></p>
+
+            <!-- 추가: 이미지 저장 버튼 -->
+            <button id="save-image-button" onclick="saveDetailAsImage()">🖼️ 이미지로 저장하기</button>
+        </div>
+    </div>
+
+
+    <!-- Firebase SDK (캔버스 환경 필수) -->
+    <script type="module">
+        // 필요한 Firestore 함수들을 명시적으로 import합니다.
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // FieldValue 대신 serverTimestamp를 직접 import합니다.
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, collection, getDocs, addDoc, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firestore 로깅 설정 (디버깅용)
+        setLogLevel('Debug');
+
+        // --- Firebase 설정: 깃허브 배포를 위해 수동으로 값 입력 ---
+        const appId = 'storyteller1017-92547'; // projectId와 동일하게 사용
+        const firebaseConfig = {
+            apiKey: "AIzaSyCTDmLttgkzwMZ8KM9rWg7hedb9XM08GMw",
+            authDomain: "storyteller1017-92547.firebaseapp.com",
+            projectId: "storyteller1017-92547",
+            storageBucket: "storyteller1017-92547.firebasestorage.app",
+            messagingSenderId: "640689321283",
+            appId: "1:640689321283:web:18f1a26c7c678d5510abf6",
+            measurementId: "G-N0LXCMEXHR"
+        };
+        const initialAuthToken = null; // 깃허브 배포 시에는 자동 주입되지 않으므로 null 처리
+
+        let app, db, auth;
+        // 중요: 리스너 해제 변수를 전역으로 선언하여 모듈 외부의 JS에서 접근 가능하게 수정
+        window.unsubscribeSnapshot = null; 
+        window.firebaseReady = false;
+        
+        // 중요: 모듈 외부의 스크립트에서 Firebase 함수를 사용하려면 window 객체에 할당해야 합니다.
+        window.doc = doc;
+        window.setDoc = setDoc;
+        window.getDoc = getDoc;
+        window.onSnapshot = onSnapshot;
+        window.updateDoc = updateDoc;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.addDoc = addDoc;
+        window.query = query;
+        // 수정: serverTimestamp 함수를 window 객체에 할당합니다.
+        window.serverTimestamp = serverTimestamp;
+
+        
+        // Firebase 초기화 및 인증 (깃허브 배포 환경 로직)
+        if (Object.keys(firebaseConfig).length > 0) {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            window.db = db; // 전역으로 접근 가능하게 설정
+
+            onAuthStateChanged(auth, async (user) => {
+                let userId;
+                if (user) {
+                    userId = user.uid;
+                } else {
+                    // 깃허브 환경에서는 initialAuthToken이 없으므로 익명 로그인 시도
+                    // --- 중요: Auth Configuration Error 발생 가능성이 높으므로 콘솔 설정을 확인해야 합니다. ---
+                    try {
+                        await signInAnonymously(auth);
+                        userId = auth.currentUser.uid;
+                    } catch (error) {
+                        console.error("Anonymous sign-in failed:", error);
+                        // 익명 로그인도 실패하면 임시 ID 사용 (최후의 수단)
+                        userId = 'temp-user-' + Math.random().toString(36).substring(2, 9);
+                    }
+                }
+                
+                window.userId = userId;
+                window.firebaseReady = true;
+                
+                document.getElementById('user-id-display').textContent = `사용자 ID: ${userId}`;
+                console.log("Firebase initialized and authenticated. User ID:", userId);
+            });
+        } else {
+            // Firebase 설정이 없을 경우, 임시 ID 사용
+            window.userId = 'user-' + Math.random().toString(36).substring(2, 9);
+            window.firebaseReady = true;
+            document.getElementById('user-id-display').textContent = `사용자 ID: ${window.userId}`;
+        }
+        
+        // 모둠 데이터 경로 생성 함수
+        window.getGroupDocRef = (groupId) => {
+            if (!window.db) return null;
+            // Public data path: /artifacts/{appId}/public/data/story_rooms/{groupId}
+            return doc(window.db, `artifacts/${appId}/public/data/story_rooms/${groupId}`);
+        };
+
+        // 저장된 글 모음 컬렉션 경로 생성 함수
+        window.getGalleryCollectionRef = () => {
+            if (!window.db) return null;
+            // Public data path: /artifacts/{appId}/public/data/story_gallery
+            return collection(window.db, `artifacts/${appId}/public/data/story_gallery`);
+        };
+    </script>
+    
+    <script>
+        // --- 1. 전역 상태 및 상수 설정 ---
+        const CONJUNCTIONS = ['그리고', '그래서', '그러나'];
+        // V19 수정: Gemini API 키를 여기에 입력하도록 명시적으로 변경 (깃허브 사용 시 필수)
+        const API_KEY = "AIzaSyA1_d1_94WT7klF4Ukt0oWs6bdtuv7z6Zs"; // <-- 여기에 실제 Gemini API 키를 입력하세요!
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
+        
+        let gameState = {
+            groupId: null,
+            story: [], // { text: string, user: string, conjunction: string, userName: string }
+            currentConjunction: '그리고',
+            isInputActive: false, 
+            humanUsers: [], // 모둠에 접속한 실제 사용자 ID
+            userName: '', // 현재 사용자의 이름
+            isStorySaved: false, // 스토리 저장 여부
+            currentModalStoryTitle: '', // 이미지 저장을 위한 현재 모달 제목 저장
+        };
+
+        // DOM 요소
+        const conjunctionCanvas = document.getElementById('conjunction-canvas');
+        const ctx = conjunctionCanvas.getContext('2d');
+        const storyboardElement = document.getElementById('storyboard');
+        const inputElement = document.getElementById('sentence-input');
+        const submitButton = document.getElementById('submit-button');
+        const messageBox = document.getElementById('message-box');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const saveButton = document.getElementById('save-button');
+        const userNameInput = document.getElementById('user-name');
+        const storyTitleInput = document.getElementById('story-title'); // 추가된 제목 입력창
+        const detailStoryElement = document.getElementById('detail-story');
+        const detailTitleElement = document.getElementById('detail-title');
+        
+        // 캔버스 크기 조정 (반응형 대응)
+        const resizeCanvas = () => {
+            conjunctionCanvas.width = conjunctionCanvas.clientWidth;
+            conjunctionCanvas.height = conjunctionCanvas.clientHeight;
+            drawConjunction();
+        };
+        window.addEventListener('resize', resizeCanvas);
+
+        // --- 2. 캔버스 접속 부사 표시 (UI) ---
+        const drawConjunction = () => {
+            const conj = gameState.currentConjunction;
+            const width = conjunctionCanvas.width;
+            const height = conjunctionCanvas.clientHeight;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            ctx.fillStyle = '#4a90e2';
+            ctx.font = 'bold 36px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // 강조 효과 추가 (배경 그림자)
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+            ctx.shadowBlur = 5;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+
+            if (gameState.story.length === 0) {
+                ctx.fillText('이야기 시작 문장 입력!', width / 2, height / 2);
+            } else {
+                ctx.fillText(`이어 말하기: [${conj}]`, width / 2, height / 2);
+            }
+            
+            // 그림자 초기화
+            ctx.shadowColor = 'transparent';
+        };
+
+        // --- 3. 모둠 선택 및 초기화 로직 ---
+        window.selectGroup = async (groupId) => {
+            if (!window.firebaseReady) {
+                showMessage("아직 서버 연결 준비 중입니다. 잠시 후 다시 시도해 주세요.", 'error');
+                return;
+            }
+            
+            // 이름 확인
+            const userName = userNameInput.value.trim();
+            if (userName.length < 2) {
+                showMessage("이름을 두 글자 이상 입력해 주세요.", 'error');
+                return;
+            }
+            gameState.userName = userName;
+
+            gameState.groupId = groupId;
+            document.getElementById('group-selection').style.display = 'none';
+            document.getElementById('gallery-area').style.display = 'none';
+            document.getElementById('game-area').style.display = 'flex';
+            document.getElementById('group-info').textContent = `${groupId} 모둠의 이야기`;
+            
+            resizeCanvas();
+
+            await initializeGroupData(groupId);
+            setupRealtimeListener(groupId);
+
+            // 중요: 초기 입력 활성화 코드는 onSnapshot에서 처리됨. 
+        };
+        
+        // Firestore에 모둠 데이터 초기화 또는 로드
+        const initializeGroupData = async (groupId) => {
+            const groupRef = window.getGroupDocRef(groupId);
+            if (!groupRef) return;
+
+            // getDoc은 window.getDoc으로 호출해야 함 (module import 때문)
+            const docSnap = await window.getDoc(groupRef);
+            
+            if (docSnap.exists()) {
+                // Case 1: 기존 데이터 로드
+                const data = docSnap.data();
+                gameState.story = data.story || [];
+                gameState.humanUsers = data.humanUsers || [];
+                gameState.isStorySaved = data.isSaved || false;
+                
+                // 현재 사용자가 humanUsers에 없으면 추가 (협력자 목록 업데이트)
+                if (!gameState.humanUsers.includes(window.userId)) {
+                    gameState.humanUsers.push(window.userId);
+                    // Firestore 업데이트 (다른 사람이 접속했을 때도 반영)
+                    await window.updateDoc(groupRef, { humanUsers: gameState.humanUsers });
+                }
+            } else {
+                // Case 2: 새 데이터 초기화
+                gameState.story = []; // 빈 스토리로 시작
+                gameState.humanUsers = [window.userId];
+                gameState.isStorySaved = false;
+                
+                // setDoc은 window.setDoc으로 호출해야 함
+                await window.setDoc(groupRef, {
+                    story: gameState.story,
+                    humanUsers: gameState.humanUsers,
+                    isSaved: false,
+                    lastUpdated: Date.now()
+                });
+            }
+            
+            // 스토리 길이에 따른 접속 부사 초기 설정 (UI 업데이트)
+            updateConjunctionState();
+            renderStory();
+            updateSaveButtonState();
+        };
+
+        // 실시간 데이터 리스너 설정
+        const setupRealtimeListener = (groupId) => {
+            const groupRef = window.getGroupDocRef(groupId);
+            if (!groupRef) return;
+            
+            // 기존 리스너가 있다면 해제 (window.unsubscribeSnapshot 사용)
+            if (window.unsubscribeSnapshot) {
+                window.unsubscribeSnapshot();
+                window.unsubscribeSnapshot = null;
+            }
+
+            // onSnapshot은 window.onSnapshot으로 호출해야 함
+            window.unsubscribeSnapshot = window.onSnapshot(groupRef, (doc) => {
+                if (doc.exists()) {
+                    const data = doc.data();
+                    const newStory = data.story || [];
+                    const newUsers = data.humanUsers || [];
+                    
+                    // 데이터 업데이트
+                    gameState.story = newStory;
+                    gameState.humanUsers = newUsers;
+                    gameState.isStorySaved = data.isSaved || false;
+                    
+                    updateConjunctionState();
+                    renderStory();
+                    updateSaveButtonState();
+
+                    // onSnapshot에서 데이터를 받은 후 입력 활성화 보장
+                    activateInput(newStory.length === 0);
+                }
+            }, (error) => {
+                console.error("Firestore Error:", error);
+                showMessage("데이터를 불러오는 데 문제가 발생했습니다. 다시 시도해 주세요.", 'error');
+            });
+        };
+        
+        // 홈으로 돌아가기 기능
+        window.goHome = () => {
+            // 리스너가 있다면 해제 (window.unsubscribeSnapshot 사용)
+            if (window.unsubscribeSnapshot) {
+                window.unsubscribeSnapshot(); 
+                window.unsubscribeSnapshot = null;
+            }
+            
+            // UI 초기화: 모두 숨기고 모둠 선택 화면만 표시
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('gallery-area').style.display = 'none';
+            document.getElementById('group-selection').style.display = 'block'; 
+            
+            // 상태 초기화
+            gameState.groupId = null;
+            gameState.story = [];
+            gameState.isStorySaved = false;
+            
+            // 입력창 초기화
+            inputElement.disabled = true;
+            submitButton.disabled = true;
+            inputElement.value = '';
+            storyTitleInput.value = ''; // 제목 초기화
+            
+            // 캔버스 초기화
+            drawConjunction();
+        };
+
+        // --- 4. 입력 상태 및 접속 부사 관리 ---
+        
+        const updateConjunctionState = () => {
+            const storyLength = gameState.story.length;
+            const isStoryEmpty = storyLength === 0;
+            
+            // 스토리가 비어있으면 접속 부사 없음, 아니면 스토리 길이 - 1 (0부터 시작)에 따라 결정
+            const requiredConjunction = isStoryEmpty ? '' : CONJUNCTIONS[(storyLength - 1) % CONJUNCTIONS.length];
+            
+            gameState.currentConjunction = requiredConjunction;
+            drawConjunction();
+            
+            // 플레이스홀더 업데이트
+            if (isStoryEmpty) {
+                inputElement.placeholder = `어떤 문장으로 시작해 볼까요? (이어 말하기 없이 시작)`;
+            } else {
+                // V15 수정: 이제 접속 부사를 입력해야 한다고 안내
+                inputElement.placeholder = `[${requiredConjunction}]를 포함하여 문장을 작성해 주세요.`;
+            }
+        };
+
+        const activateInput = (isStoryEmpty) => {
+            // 로딩 중이 아닐 때만 입력 활성화 (hideLoading에서 이미 로딩 오버레이는 처리됨)
+            // showLoading/hideLoading 로직을 제외하고는 항상 활성화
+            if (loadingOverlay.style.display !== 'flex') {
+                gameState.isInputActive = true;
+                // 스토리가 저장된 상태면 입력 비활성화
+                if (!gameState.isStorySaved) {
+                    inputElement.disabled = false;
+                    submitButton.disabled = false;
+                    storyTitleInput.disabled = false; // 제목 입력창 활성화
+                } else {
+                    inputElement.disabled = true;
+                    submitButton.disabled = true;
+                    storyTitleInput.disabled = true; // 제목 입력창 비활성화
+                }
+            }
+        };
+        
+        const updateSaveButtonState = () => {
+            if (gameState.story.length >= 3 && !gameState.isStorySaved) {
+                saveButton.disabled = false;
+                saveButton.textContent = '이야기 완성 및 저장';
+                saveButton.style.backgroundColor = '#9c27b0';
+            } else if (gameState.isStorySaved) {
+                saveButton.disabled = true;
+                saveButton.textContent = '✅ 저장 완료';
+                saveButton.style.backgroundColor = '#4CAF50';
+            } else {
+                saveButton.disabled = true;
+                saveButton.textContent = '이야기 완성 및 저장 (3문장 이상)';
+                saveButton.style.backgroundColor = '#bdbdbd';
+            }
+        };
+        
+        /**
+         * 문장 내에서 접속 부사를 찾아 HTML 태그로 감싸 강조하는 함수
+         * @param {string} text 학생이 입력한 전체 문장
+         * @param {string} conjunction 찾아야 할 접속 부사 (예: '그리고')
+         * @returns {string} HTML 태그가 적용된 문장
+         */
+        const highlightConjunction = (text, conjunction) => {
+            if (!conjunction || text.length === 0) return text;
+            
+            // V16 수정: 단어 경계(\b)를 제거하여, '그리고'가 문장 앞에 와도 인식하도록 변경
+            const regex = new RegExp(`(${conjunction})`, 'gi');
+            
+            // V17: 괄호() 대신 [ ] 사용. [ $1 ] 형태로 대체
+            return text.replace(regex, `<span class="conjunction-highlight">[ $1 ]</span>`); 
+        };
+
+
+        // --- 5. UI 및 메시지 관리 ---
+        const renderStory = () => {
+            storyboardElement.innerHTML = '';
+            let html = '';
+            
+            if (gameState.story.length === 0) {
+                 html += '<p style="color: #888; text-align: center; margin-top: 50px;">이야기가 시작되지 않았어요. 모둠원 중 누구나 첫 문장을 입력해 보세요!</p>';
+            } else {
+                gameState.story.forEach((item, index) => {
+                    const isFirst = index === 0;
+                    // 사용자 이름 표시 로직
+                    let displayUser = item.userName || item.user.substring(0, 8) + '...';
+                    if (item.user === window.userId) displayUser = `${item.userName} (나)`;
+
+                    if (!isFirst) {
+                        // V17 수정: 접속 부사를 [ ]로 감싸 강조하며 출력
+                        const highlightedText = highlightConjunction(item.text, item.conjunction);
+                        html += `${highlightedText} <span style="font-size: 0.8em; color: #999;">- ${displayUser}</span><br>`;
+                    } else {
+                        // V17 수정: 첫 문장 앞에 (시작) 태그 완전히 제거
+                        html += `${item.text} <span style="font-size: 0.8em; color: #999;">- ${displayUser}</span><br>`;
+                    }
+                });
+            }
+            
+            storyboardElement.innerHTML = html;
+            storyboardElement.scrollTop = storyboardElement.scrollHeight; // 스크롤 하단으로 이동
+        };
+        
+        const showMessage = (text, type = 'info') => {
+            messageBox.textContent = text;
+            messageBox.style.display = 'block';
+            messageBox.style.backgroundColor = type === 'error' ? '#ffebee' : '#e3f2fd';
+            messageBox.style.color = type === 'error' ? '#c62828' : '#1e88e5';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 3000);
+        };
+
+        // --- 6. 사용자 문장 제출 로직 ---
+        window.submitSentence = async () => {
+            if (!gameState.isInputActive || gameState.isStorySaved) {
+                showMessage('입력할 수 있는 상태가 아닙니다. (저장 완료 또는 로딩 중)', 'error');
+                return;
+            }
+            if (!gameState.userName) {
+                 showMessage('이름을 먼저 입력해야 합니다.', 'error');
+                 return;
+            }
+
+            let sentence = inputElement.value.trim();
+            if (sentence.length < 5) {
+                showMessage('문장을 조금 더 길게 작성해 주세요.', 'error');
+                return;
+            }
+            
+            const isFirstSentence = gameState.story.length === 0;
+            const conjunction = isFirstSentence ? '' : gameState.currentConjunction;
+            
+            // 입력 잠금
+            inputElement.disabled = true;
+            submitButton.disabled = true;
+            
+            try {
+                // V16 수정: 접속 부사 포함 여부 확인 로직 (단어 경계 \b 제거)
+                if (!isFirstSentence) {
+                    // 입력 문장에 현재 접속 부사가 포함되어 있는지 확인
+                    const regexCheck = new RegExp(`${conjunction}`, 'i');
+                    if (!regexCheck.test(sentence)) {
+                        showMessage(`이번 문장에는 꼭 '${conjunction}'를 포함해서 작성해 주세요.`, 'error');
+                        inputElement.disabled = false;
+                        submitButton.disabled = false;
+                        return;
+                    }
+                }
+                
+                let verificationResult = 'OK';
+                
+                if (!isFirstSentence && conjunction !== '그리고') {
+                     // 첫 문장이 아니며 '그리고'가 아닌 경우에만 논리 검증 수행
+                     showLoading("선생님 AI가 문맥을 확인 중이에요...");
+                     const lastSentence = gameState.story[gameState.story.length - 1].text;
+                     // V15 수정: 학생이 입력한 문장 전체(접속 부사 포함)를 전달
+                     verificationResult = await callGeminiForVerification(lastSentence, sentence, conjunction);
+                }
+                
+                if (verificationResult.startsWith('OK')) {
+                    // 성공: 스토리 업데이트
+                    const newStoryItem = {
+                        text: sentence, // 학생이 입력한 문장 전체 (접속 부사 포함) 저장
+                        user: window.userId,
+                        conjunction: conjunction,
+                        userName: gameState.userName, // 이름 저장
+                    };
+                    
+                    const groupRef = window.getGroupDocRef(gameState.groupId);
+                    if (groupRef) {
+                        // updateDoc은 window.updateDoc으로 호출해야 함
+                        await window.updateDoc(groupRef, {
+                            story: [...gameState.story, newStoryItem],
+                            lastUpdated: Date.now()
+                        });
+                        inputElement.value = '';
+                        showMessage('아주 좋아요! 모둠원 누구나 다음 문장을 이을 수 있습니다.', 'info');
+                    }
+                } else {
+                    // 실패: 경고 메시지 표시 및 입력 잠금 해제
+                    const isFirst = gameState.story.length === 0;
+                    let errorMsg = `문장의 논리적인 흐름이 맞지 않거나, '${conjunction}'를 잘못 사용했어요. 다시 작성해 보세요.`;
+                    
+                    if (verificationResult.startsWith('FAIL:')) {
+                        const hint = verificationResult.substring(5).trim(); // Extract hint after "FAIL:"
+                        errorMsg = `문맥이 조금 어색해요. 힌트: ${hint}`;
+                    }
+
+                    showMessage(errorMsg, 'error');
+                    activateInput(isFirst); // 오류 발생 시 다시 입력 가능하게 함
+                }
+            } catch (error) {
+                console.error("Submission Error:", error);
+                showMessage("처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.", 'error');
+                activateInput(gameState.story.length === 0); // 오류 발생 시 다시 입력 가능하게 함
+            } finally {
+                hideLoading();
+            }
+        };
+        
+        // --- 7. 스토리 저장 (갤러리) 로직 ---
+        window.saveStory = async () => {
+            if (gameState.story.length < 3 || gameState.isStorySaved) {
+                showMessage("3문장 이상 입력해야 저장할 수 있습니다.", 'error');
+                return;
+            }
+            
+            const storyTitle = storyTitleInput.value.trim();
+            if (storyTitle.length < 2) {
+                showMessage("이야기 제목을 두 글자 이상 입력해 주세요.", 'error');
+                storyTitleInput.focus();
+                return;
+            }
+
+            showLoading("이야기를 '우리 반 글 모음'에 저장 중입니다...");
+            
+            try {
+                const galleryRef = window.getGalleryCollectionRef();
+                const groupRef = window.getGroupDocRef(gameState.groupId);
+                
+                if (!galleryRef || !groupRef) throw new Error("Firebase 참조 오류");
+                
+                // 1. 참여자 목록 정리 (중복 제거 및 이름만 추출)
+                const authorNames = [...new Set(gameState.story.map(item => item.userName))];
+                
+                // 2. 전체 스토리 텍스트 생성 (접속 부사를 [ ]로 감싸서 저장)
+                const fullStoryText = gameState.story.map((item, index) => {
+                    // V17 수정: (시작) 태그 제거
+                    if (index === 0) {
+                        return `${item.text}`;
+                    }
+                    // V17/V18 수정: [ ] 기호를 사용하여 저장
+                    const regex = new RegExp(`(${item.conjunction})`, 'gi'); // 단어 경계 제거
+                    const textWithBracket = item.text.replace(regex, `[ $1 ]`);
+                    return textWithBracket; 
+                }).join(' ');
+
+                // 3. 갤러리 컬렉션에 새 문서 추가 (addDoc 사용)
+                await window.addDoc(galleryRef, {
+                    groupId: gameState.groupId,
+                    title: storyTitle, // 추가된 제목
+                    fullStory: fullStoryText,
+                    authors: authorNames,
+                    // 수정: window.serverTimestamp() 함수를 사용
+                    timestamp: window.serverTimestamp() || Date.now(), 
+                    firstSentence: gameState.story[0].text,
+                });
+                
+                // 4. 현재 모둠 문서에 isSaved 플래그 업데이트
+                await window.updateDoc(groupRef, { isSaved: true });
+                
+                // gameState와 UI는 onSnapshot을 통해 자동으로 업데이트됨
+                showMessage("이야기가 '우리 반 글 모음'에 저장되었습니다! 🎉", 'info');
+            } catch (error) {
+                console.error("Story Save Error:", error);
+                showMessage("저장 중 오류가 발생했습니다. 다시 시도해 주세요.", 'error');
+            } finally {
+                hideLoading();
+            }
+        };
+
+        // --- 8. 갤러리 화면 표시 및 로드 로직 ---
+        window.showGallery = () => {
+            // UI 전환
+            document.getElementById('group-selection').style.display = 'none';
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('gallery-area').style.display = 'block';
+
+            loadGalleryStories();
+        };
+
+        const loadGalleryStories = async () => {
+            showLoading("저장된 글 목록을 불러오는 중입니다...");
+            const galleryListElement = document.getElementById('gallery-list');
+            galleryListElement.innerHTML = ''; // 목록 초기화
+            
+            try {
+                const galleryRef = window.getGalleryCollectionRef();
+                if (!galleryRef) throw new Error("Firebase 참조 오류");
+                
+                // 갤러리 컬렉션의 모든 문서 가져오기 (쿼리는 현재 사용하지 않음)
+                const q = window.query(galleryRef);
+                const querySnapshot = await window.getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    galleryListElement.innerHTML = '<li style="text-align: center; color: #888; background-color: #f0f8ff; cursor: default;">아직 저장된 이야기가 없어요.</li>';
+                    return;
+                }
+
+                let listHtml = '';
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    const storyId = doc.id;
+                    // 수정: 저장된 title을 사용하고 없으면 첫 문장 일부를 제목으로 사용
+                    const title = data.title ? data.title : `${data.firstSentence.substring(0, 20)}...`;
+                    const displayTitle = `[${data.groupId} 모둠] ${title}`;
+                    
+                    // openDetailModal 호출 시 제목을 전달
+                    // fullStory는 이미 괄호 처리된 텍스트입니다.
+                    listHtml += `<li onclick="openDetailModal('${storyId}', '${displayTitle}', \`${data.fullStory.replace(/`/g, "\\`")}\`, \`${data.authors.join(', ').replace(/`/g, "\\`")}\`)">${displayTitle}</li>`;
+                });
+                
+                galleryListElement.innerHTML = listHtml;
+            } catch (error) {
+                console.error("Load Gallery Error:", error);
+                galleryListElement.innerHTML = '<li style="color: #c62828; background-color: #ffebee; cursor: default;">글 목록을 불러오는 데 실패했습니다.</li>';
+            } finally {
+                hideLoading();
+            }
+        };
+        
+        // 상세 모달 열기
+        window.openDetailModal = (storyId, groupTitle, fullStory, authors) => {
+            detailTitleElement.textContent = groupTitle; // 그룹 타이틀과 제목이 합쳐져서 들어옴
+            detailStoryElement.textContent = fullStory;
+            document.getElementById('detail-authors').textContent = authors;
+            
+            // 이미지 저장을 위해 현재 모달 제목을 저장
+            gameState.currentModalStoryTitle = groupTitle.replace(/\[.*\]\s*/, '').trim(); // [X 모둠] 부분을 제거
+            if (!gameState.currentModalStoryTitle) gameState.currentModalStoryTitle = '우리반_이야기';
+
+            document.getElementById('gallery-detail-modal').style.display = 'flex';
+        };
+
+        // 상세 모달 닫기
+        window.closeDetailModal = (event) => {
+            // 모달 바깥쪽 클릭 시 닫기
+            if (!event || event.target.id === 'gallery-detail-modal' || event.target.className === 'close-modal-button') {
+                document.getElementById('gallery-detail-modal').style.display = 'none';
+            }
+        };
+        
+        // --- 9. 이미지 저장 로직 (HTML 캡처 대체) ---
+        window.saveDetailAsImage = () => {
+            // 캔버스 기반으로 텍스트를 이미지화하는 대체 로직
+            const storyText = detailStoryElement.textContent;
+            const titleText = detailTitleElement.textContent;
+            const authorsText = document.getElementById('detail-authors').textContent;
+
+            // 임시 캔버스 생성 및 설정
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            const padding = 30;
+            const lineWidth = 600; 
+            const fontSize = 16;
+            const titleFontSize = 24;
+            const authorFontSize = 14;
+            let currentY = padding;
+            
+            // 텍스트를 줄바꿈 기준으로 분할
+            const storyLines = storyText.split('\n');
+            
+            // 텍스트를 캔버스 너비에 맞게 분할하는 헬퍼 함수
+            const getLines = (text, maxWidth, font) => {
+                tempCtx.font = font;
+                const words = text.split(' ');
+                let lines = [];
+                let currentLine = words[0] || '';
+
+                for (let i = 1; i < words.length; i++) {
+                    const word = words[i];
+                    const width = tempCtx.measureText(currentLine + " " + word).width;
+                    if (width < maxWidth) {
+                        currentLine += " " + word;
+                    } else {
+                        lines.push(currentLine);
+                        currentLine = word;
+                    }
+                }
+                lines.push(currentLine);
+                return lines;
+            };
+            
+            // 캔버스 크기 계산 (간단하게)
+            const estimatedLineHeight = fontSize * 1.5;
+            const estimatedTotalHeight = (storyLines.length * estimatedLineHeight) + 150; // 제목 및 여유 공간 포함
+            
+            tempCanvas.width = lineWidth + 2 * padding;
+            tempCanvas.height = estimatedTotalHeight;
+
+            // 배경 채우기
+            tempCtx.fillStyle = '#FFFFFF';
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+            // 제목 그리기
+            tempCtx.fillStyle = '#e91e63';
+            tempCtx.font = `bold ${titleFontSize}px Inter`;
+            tempCtx.textAlign = 'center';
+            currentY += titleFontSize + 10;
+            tempCtx.fillText(titleText, tempCanvas.width / 2, currentY);
+            
+            // 구분선
+            currentY += 15;
+            tempCtx.strokeStyle = '#e91e63';
+            tempCtx.lineWidth = 2;
+            tempCtx.beginPath();
+            tempCtx.moveTo(padding, currentY);
+            tempCtx.lineTo(tempCanvas.width - padding, currentY);
+            tempCtx.stroke();
+            currentY += 20;
+
+            // 스토리 내용 그리기
+            tempCtx.fillStyle = '#333333';
+            tempCtx.font = `${fontSize}px Inter`;
+            tempCtx.textAlign = 'left';
+            const storyMaxWidth = lineWidth;
+
+            storyLines.forEach(line => {
+                const wrappedLines = getLines(line, storyMaxWidth, `${fontSize}px Inter`);
+                wrappedLines.forEach(wrappedLine => {
+                    tempCtx.fillText(wrappedLine, padding, currentY);
+                    currentY += estimatedLineHeight;
+                });
+                currentY += estimatedLineHeight * 0.2; // 단락 간격
+            });
+            
+            // 참여자 정보 그리기
+            currentY += 20;
+            tempCtx.fillStyle = '#666666';
+            tempCtx.font = `${authorFontSize}px Inter`;
+            tempCtx.fillText(`참여 학생: ${authorsText}`, padding, currentY);
+            
+            // 다운로드 트리거
+            const dataURL = tempCanvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            // 저장된 제목 사용
+            link.download = `${gameState.currentModalStoryTitle.replace(/[\\/:*?"<>|]/g, '_')}_이야기.png`;
+            link.href = dataURL;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showMessage('이미지 저장이 완료되었습니다!', 'info');
+        };
+
+        // --- 10. Gemini API 호출 함수 (Verification) ---
+        
+        const callGeminiAPI = async (systemPrompt, userQuery) => {
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+
+            const maxRetries = 3;
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`API returned status ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+                    return text;
+
+                } catch (error) {
+                    console.error(`Attempt ${attempt + 1} failed:`, error);
+                    if (attempt < maxRetries - 1) {
+                        const delay = Math.pow(2, attempt) * 1000; // Exponential backoff (1s, 2s, 4s)
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        throw new Error("Failed to communicate with AI after multiple retries.");
+                    }
+                }
+            }
+        };
+        
+        // 10.1. 문장 검증 (사용자 턴)
+        const callGeminiForVerification = async (lastSentence, newSentence, conjunction) => {
+            // V15 수정: 학생이 입력한 문장 전체를 그대로 전달
+            const systemPrompt = `You are a helpful language tutor for 3rd-grade students. Your task is to check if a new sentence logically follows the previous sentence using the required conjunction ('그리고' for simple addition, '그래서' for cause/effect, '그러나' for contrast/reversal). 
+            
+            If the sentence is logically correct, respond **ONLY** with 'OK'. 
+            
+            If the sentence is logically broken, respond **ONLY** with the format: 'FAIL: [Example Sentence Hint using the required conjunction and relevant context from the last sentence. Make the hint encouraging and easy for a 3rd grader.]'. Do not include any other text.`;
+
+            // userQuery에 접속 부사가 포함된 문장 전체를 보냅니다.
+            const userQuery = `이 문장이 이야기의 흐름에 맞는지 확인해 주세요. 접속 부사: ${conjunction}. 앞 문장: "${lastSentence}". 입력 문장: "${newSentence}".`;
+            
+            const result = await callGeminiAPI(systemPrompt, userQuery);
+            return result.trim(); // Trimmed result is used directly for parsing
+        };
+        
+
+        // 로딩 화면 제어
+        const showLoading = (message) => {
+            document.getElementById('loading-message').textContent = message;
+            loadingOverlay.style.display = 'flex';
+            // 로딩 중에는 입력/버튼 비활성화
+            inputElement.disabled = true;
+            submitButton.disabled = true;
+        };
+
+        const hideLoading = () => {
+            loadingOverlay.style.display = 'none';
+            // 로딩이 끝나면 다시 입력 활성화
+            activateInput(gameState.story.length === 0);
+        };
+
+        // 초기 설정
+        window.onload = () => {
+            inputElement.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !inputElement.disabled) {
+                    submitSentence();
+                }
+            });
+            resizeCanvas();
+        };
+    </script>
+</body>
+</html>
