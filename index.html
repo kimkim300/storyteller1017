@@ -61,6 +61,12 @@
             max-width: 300px;
             text-align: center;
             margin-top: 10px;
+            /* V30: 포커스 시 색상 변경 */
+            transition: border-color 0.3s;
+        }
+        #user-name:focus {
+            border-color: #ff9800; /* 주황색 포커스 */
+            outline: none;
         }
         
         .group-buttons {
@@ -210,7 +216,7 @@
             outline: none;
         }
 
-        #submit-button, #save-button {
+        #submit-button {
             background-color: #4CAF50; /* 녹색 */
             color: white;
             border: none;
@@ -221,17 +227,79 @@
             font-weight: bold;
             transition: background-color 0.2s, transform 0.1s;
         }
-
-        #submit-button:hover, #save-button:hover {
+        
+        #submit-button:hover {
             background-color: #45a049;
             transform: translateY(-1px);
         }
 
-        #submit-button:disabled, #save-button:disabled {
+        #submit-button:disabled {
             background-color: #bdbdbd;
             cursor: not-allowed;
             transform: none;
         }
+        
+        /* 저장 버튼 공통 스타일 (재사용) */
+        .action-button {
+            border: none;
+            /* V27 수정: 패딩을 줄여서 버튼 텍스트가 한 줄로 들어가도록 최적화 */
+            padding: 10px 15px; 
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.1s;
+            color: white;
+            white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 강제 */
+        }
+        
+        .action-button:hover {
+            transform: translateY(-1px);
+        }
+        
+        #save-button {
+            background-color: #9c27b0; /* 보라색 */
+        }
+        
+        #save-button:hover {
+            background-color: #7b1fa2;
+        }
+
+        #save-button:disabled {
+            background-color: #bdbdbd;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* 저장 후 버튼 스타일 */
+        #continue-edit-button {
+            background-color: #f44336; /* 붉은색 */
+            flex-grow: 1; 
+        }
+        
+        #new-story-button {
+            background-color: #4a90e2; /* 파란색 */
+            flex-grow: 1; 
+        }
+        
+        /* V25 핵심 수정: 저장 후 액션 버튼을 가로로 배치 */
+        #post-save-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px; /* 버튼 간격 */
+            text-align: center;
+            margin-top: 10px;
+            width: 100%;
+            flex-wrap: wrap; /* 작은 화면에서 대비 */
+        }
+        /* V25: 버튼 텍스트가 위로 올라가지 않도록 수정 */
+        #post-save-actions p {
+            width: 100%;
+            margin-bottom: 15px !important;
+            text-align: left !important;
+        }
+
 
         /* 메시지 박스 */
         .message-box {
@@ -306,6 +374,57 @@
             font-size: 1rem;
         }
 
+        /* V28: 댓글 영역 스타일 */
+        .comments-section {
+            margin-top: 25px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        
+        .comment-input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        #comment-input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        #comment-submit-button {
+            background-color: #ff9800; /* 주황색 */
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .comment-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .comment-list li {
+            background-color: #f7f7f7;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            color: #3f51b5; /* 남색 */
+            margin-right: 8px;
+        }
+        
+
         .close-modal-button {
             position: absolute;
             top: 10px;
@@ -373,8 +492,8 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* ----- 커스텀 확인 모달 스타일 (재시작 확인 모달) ----- */
-        #custom-confirm-modal {
+        /* ----- 새 이야기 시작 확인 모달 스타일 (재시작 확인) ----- */
+        #reset-confirm-modal {
             position: fixed;
             top: 0;
             left: 0;
@@ -401,7 +520,7 @@
             font-size: 1.1rem;
             margin-bottom: 20px;
             font-weight: bold;
-            color: #1e88e5; /* 질문 색상 */
+            color: #e91e63; /* 질문 색상 */
         }
 
         .confirm-actions button {
@@ -414,18 +533,18 @@
             transition: background-color 0.2s;
         }
 
-        #confirm-yes {
-            background-color: #4a90e2; /* 파란색 */
+        #confirm-reset-yes {
+            background-color: #f44336; /* 붉은색 */
             color: white;
         }
-        #confirm-yes:hover {
-            background-color: #357bd8;
+        #confirm-reset-yes:hover {
+            background-color: #d32f2f;
         }
 
-        #confirm-no {
+        #confirm-reset-no {
             background-color: #ccc;
         }
-        #confirm-no:hover {
+        #confirm-reset-no:hover {
             background-color: #bbb;
         }
         /* ------------------------------------------- */
@@ -443,6 +562,14 @@
             .input-area { flex-direction: column; }
             #submit-button { width: 100%; padding: 10px; }
             .detail-content { padding: 20px; }
+            
+            /* V25 수정: 저장 후 버튼 간격 조정 */
+            #post-save-actions button {
+                /* 작은 화면에서 버튼이 세로로 떨어지도록 유연하게 재조정 */
+                flex-grow: 1;
+                width: 100%;
+                margin: 5px 0 !important;
+            }
         }
     </style>
 </head>
@@ -452,14 +579,13 @@
         <span id="loading-message">AI 선생님이 문맥을 확인 중이에요...</span>
     </div>
 
-    <!-- V20: 재시작 확인 커스텀 모달 -->
-    <div id="custom-confirm-modal" class="custom-confirm-modal">
+    <!-- 새 이야기 시작 확인 커스텀 모달 -->
+    <div id="reset-confirm-modal" class="custom-confirm-modal">
         <div class="confirm-box">
-            <!-- V21: 메시지 변경 -->
-            <p id="confirm-message">이야기가 성공적으로 저장되었습니다.<br>새로운 이야기를 시작하시겠습니까?</p>
+            <p id="confirm-message">현재 작성 중인 이야기가 모두 지워지고 새로운 이야기가 시작됩니다.<br>정말 새 이야기를 시작하시겠습니까?</p>
             <div class="confirm-actions">
-                <button id="confirm-yes">네, 새 이야기 시작</button>
-                <button id="confirm-no" onclick="closeCustomConfirmModal()">아니오, 잠시 쉴래요</button>
+                <button id="confirm-reset-yes" onclick="resetGroupStory()">네, 지우고 시작</button>
+                <button id="confirm-reset-no" onclick="closeResetConfirmModal()">아니오, 취소</button>
             </div>
         </div>
     </div>
@@ -496,9 +622,7 @@
         <div id="game-area">
             <div id="group-header">
                 <div id="group-info"></div>
-                <!-- V21 수정: 다시 시작 버튼 삭제 -->
                 <div> 
-                    <!-- <button id="reset-button" onclick="showCustomConfirmModal()">♻️ 다시 시작</button> -->
                     <button id="home-button" onclick="goHome()">🏠 홈으로 돌아가기</button>
                 </div>
             </div>
@@ -521,9 +645,21 @@
                 <button id="submit-button" onclick="submitSentence()" disabled>제출</button>
             </div>
             
-            <!-- 저장 버튼 -->
-            <button id="save-button" onclick="saveStory()" disabled style="margin-top: 10px; width: 100%;">이야기 완성 및 저장</button>
-
+            <!-- V24 수정: 저장/저장 후 액션 버튼 영역 -->
+            <div id="action-buttons-area" style="margin-top: 10px; width: 100%;">
+                <!-- 1. 저장 버튼 (평소에 보임) -->
+                <button id="save-button" onclick="saveStory()" disabled class="action-button" style="width: 100%;">이야기 완성 및 저장 (3문장 이상)</button>
+                
+                <!-- 2. 저장 후 옵션 버튼 (저장 완료 시 보임) -->
+                <!-- V25 수정: 버튼 영역에 display: flex 적용 및 gap 추가 -->
+                <!-- V27 수정: 텍스트를 한 줄로, 버튼 패딩을 조절하여 여백 확보 -->
+                <div id="post-save-actions" style="display: none; text-align: center; margin-top: 10px; display: flex; gap: 10px;">
+                    <p style="font-weight: bold; color: #4CAF50; margin-bottom: 10px; width: 100%; text-align: left;">✅ 이 이야기는 저장되었습니다. 계속 활동을 선택하세요.</p>
+                    <button id="continue-edit-button" onclick="continueEditing()" class="action-button" style="flex-grow: 1;">✏️ 이어서 편집하기</button>
+                    <button id="new-story-button" onclick="showResetConfirmModal()" class="action-button" style="flex-grow: 1;">✨ 새 이야기 시작</button>
+                </div>
+            </div>
+            
         </div>
         
         <!-- 3. 저장된 글 모음 갤러리 화면 -->
@@ -549,6 +685,24 @@
             <h2 id="detail-title"></h2>
             <p id="detail-story"></p>
             <p style="font-size: 0.9em; color: #666; margin-top: 20px;">참여 학생: <span id="detail-authors"></span></p>
+
+            <!-- V28: 댓글 섹션 시작 -->
+            <div class="comments-section">
+                <h3 style="font-size: 1.2rem; color: #4a90e2; margin-bottom: 10px;">💬 친구들의 응원 댓글</h3>
+                
+                <!-- 댓글 목록 -->
+                <ul id="comment-list" class="comment-list">
+                    <!-- 댓글이 실시간으로 로드됩니다 -->
+                    <li style="text-align: center; color: #888;">댓글을 불러오는 중...</li>
+                </ul>
+
+                <!-- 댓글 입력 영역 -->
+                <div class="comment-input-area">
+                    <input type="text" id="comment-input" placeholder="응원 메시지를 남겨주세요!">
+                    <button id="comment-submit-button" onclick="submitComment()">댓글 달기</button>
+                </div>
+            </div>
+            <!-- V28: 댓글 섹션 끝 -->
 
             <!-- 추가: 이미지 저장 버튼 -->
             <button id="save-image-button" onclick="saveDetailAsImage()">🖼️ 이미지로 저장하기</button>
@@ -584,6 +738,8 @@
         let app, db, auth;
         // 중요: 리스너 해제 변수를 전역으로 선언하여 모듈 외부의 JS에서 접근 가능하게 수정
         window.unsubscribeSnapshot = null; 
+        // V28: 댓글 리스너 해제를 위한 전역 변수 추가
+        window.unsubscribeComments = null;
         window.firebaseReady = false;
         
         // 중요: 모듈 외부의 스크립트에서 Firebase 함수를 사용하려면 window 객체에 할당해야 합니다.
@@ -650,6 +806,13 @@
             // Public data path: /artifacts/{appId}/public/data/story_gallery
             return collection(window.db, `artifacts/${appId}/public/data/story_gallery`);
         };
+
+        // V28: 댓글 컬렉션 경로 생성 함수
+        window.getCommentsCollectionRef = (storyId) => {
+            if (!window.db) return null;
+            // Public data path: /artifacts/{appId}/public/data/story_gallery/{storyId}/comments
+            return collection(window.db, `artifacts/${appId}/public/data/story_gallery/${storyId}/comments`);
+        };
     </script>
     
     <script>
@@ -668,6 +831,7 @@
             userName: '', // 현재 사용자의 이름
             isStorySaved: false, // 스토리 저장 여부
             currentModalStoryTitle: '', // 이미지 저장을 위한 현재 모달 제목 저장
+            currentStoryId: null, // V28: 현재 열려있는 상세 모달의 storyId
         };
 
         // DOM 요소
@@ -678,13 +842,17 @@
         const submitButton = document.getElementById('submit-button');
         const messageBox = document.getElementById('message-box');
         const loadingOverlay = document.getElementById('loading-overlay');
+        // V24 수정: DOM 요소 추가
         const saveButton = document.getElementById('save-button');
+        const postSaveActionsDiv = document.getElementById('post-save-actions');
         const userNameInput = document.getElementById('user-name');
         const storyTitleInput = document.getElementById('story-title'); // 추가된 제목 입력창
         const detailStoryElement = document.getElementById('detail-story');
         const detailTitleElement = document.getElementById('detail-title');
-        const confirmModal = document.getElementById('custom-confirm-modal'); // V20: 확인 모달
-        const confirmYesButton = document.getElementById('confirm-yes');     // V20: 확인 버튼
+        const resetConfirmModal = document.getElementById('reset-confirm-modal'); // V24: 새 이야기 시작 확인 모달
+        // V28: 댓글 DOM 요소 추가
+        const commentListElement = document.getElementById('comment-list');
+        const commentInputElement = document.getElementById('comment-input');
         
         // 캔버스 크기 조정 (반응형 대응)
         const resizeCanvas = () => {
@@ -730,10 +898,11 @@
                 return;
             }
             
-            // 이름 확인
+            // V30 수정: 이름 유효성 검사 강화
             const userName = userNameInput.value.trim();
             if (userName.length < 2) {
                 showMessage("이름을 두 글자 이상 입력해 주세요.", 'error');
+                userNameInput.focus();
                 return;
             }
             gameState.userName = userName;
@@ -766,6 +935,7 @@
                 gameState.story = data.story || [];
                 gameState.humanUsers = data.humanUsers || [];
                 gameState.isStorySaved = data.isSaved || false;
+                storyTitleInput.value = data.title || ''; // 저장된 제목 로드
                 
                 // 현재 사용자가 humanUsers에 없으면 추가 (협력자 목록 업데이트)
                 if (!gameState.humanUsers.includes(window.userId)) {
@@ -778,12 +948,14 @@
                 gameState.story = []; // 빈 스토리로 시작
                 gameState.humanUsers = [window.userId];
                 gameState.isStorySaved = false;
+                storyTitleInput.value = '';
                 
                 // setDoc은 window.setDoc으로 호출해야 함
                 await window.setDoc(groupRef, {
                     story: gameState.story,
                     humanUsers: gameState.humanUsers,
                     isSaved: false,
+                    title: '',
                     lastUpdated: Date.now()
                 });
             }
@@ -816,6 +988,7 @@
                     gameState.story = newStory;
                     gameState.humanUsers = newUsers;
                     gameState.isStorySaved = data.isSaved || false;
+                    storyTitleInput.value = data.title || ''; // 실시간 제목 업데이트
                     
                     updateConjunctionState();
                     renderStory();
@@ -838,6 +1011,12 @@
                 window.unsubscribeSnapshot = null;
             }
             
+            // V28: 댓글 리스너 해제 (홈으로 돌아갈 때)
+            if (window.unsubscribeComments) {
+                window.unsubscribeComments();
+                window.unsubscribeComments = null;
+            }
+
             // UI 초기화: 모두 숨기고 모둠 선택 화면만 표시
             document.getElementById('game-area').style.display = 'none';
             document.getElementById('gallery-area').style.display = 'none';
@@ -847,22 +1026,24 @@
             gameState.groupId = null;
             gameState.story = [];
             gameState.isStorySaved = false;
+            gameState.currentStoryId = null;
             
             // 입력창 초기화
             inputElement.disabled = true;
             submitButton.disabled = true;
             inputElement.value = '';
             storyTitleInput.value = ''; // 제목 초기화
+            userNameInput.value = gameState.userName; // V30: 이름은 유지 (UX 개선)
             
             // 캔버스 초기화
             drawConjunction();
         };
 
-        // V20: 모둠 스토리 초기화 함수 (다시 시작)
+        // V24 수정: 모둠 스토리 초기화 함수 (새 이야기 시작)
         window.resetGroupStory = async () => {
             if (!gameState.groupId || !window.db) return;
             showLoading(`[${gameState.groupId} 모둠] 이야기를 지우는 중...`);
-            closeCustomConfirmModal();
+            closeResetConfirmModal(); // 모달 닫기
 
             try {
                 const groupRef = window.getGroupDocRef(gameState.groupId);
@@ -871,11 +1052,11 @@
                 await window.updateDoc(groupRef, {
                     story: [],
                     isSaved: false,
+                    title: '',
                     lastUpdated: Date.now()
                 });
 
                 // UI는 onSnapshot을 통해 자동으로 업데이트됨
-                // 입력창 및 제목 초기화는 onSnapshot 콜백 내에서 간접적으로 처리됨
                 storyTitleInput.value = '';
                 showMessage(`[${gameState.groupId} 모둠]의 이야기가 깨끗하게 지워졌습니다. 새로운 이야기를 시작하세요!`, 'info');
 
@@ -886,20 +1067,43 @@
                 hideLoading();
             }
         };
+        
+        // V24 추가: 저장된 이야기를 이어서 편집하기
+        window.continueEditing = async () => {
+            if (!gameState.groupId || !window.db) return;
+            showLoading(`[${gameState.groupId} 모둠] 이야기를 이어서 편집합니다...`);
+            
+            try {
+                const groupRef = window.getGroupDocRef(gameState.groupId);
+                
+                // Firestore 문서 업데이트로 isSaved 플래그만 false로 변경
+                await window.updateDoc(groupRef, {
+                    isSaved: false,
+                    lastUpdated: Date.now()
+                });
+                
+                // UI는 onSnapshot을 통해 자동으로 업데이트됨
+                inputElement.value = '';
+                showMessage('이야기가 잠금 해제되었습니다. 이어서 작성해 주세요!', 'info');
 
-        // V20: 커스텀 확인 모달 표시 (V21: 저장 후 재시작 확인용)
-        window.showCustomConfirmModal = () => {
-            confirmModal.style.display = 'flex';
+            } catch (error) {
+                console.error("Continue Editing Error:", error);
+                showMessage("편집 모드 전환 중 오류가 발생했습니다.", 'error');
+            } finally {
+                hideLoading();
+            }
         };
 
-        // V20: 커스텀 확인 모달 닫기
-        window.closeCustomConfirmModal = () => {
-            confirmModal.style.display = 'none';
+        // V24: 새 이야기 시작 확인 모달 표시
+        window.showResetConfirmModal = () => {
+            resetConfirmModal.style.display = 'flex';
+        };
+
+        // V24: 새 이야기 시작 확인 모달 닫기
+        window.closeResetConfirmModal = () => {
+            resetConfirmModal.style.display = 'none';
         };
         
-        // V20: '예' 버튼에 이벤트 리스너 연결 (V21: 저장 후 초기화)
-        confirmYesButton.onclick = window.resetGroupStory;
-
 
         // --- 4. 입력 상태 및 접속 부사 관리 ---
         
@@ -927,32 +1131,42 @@
             // showLoading/hideLoading 로직을 제외하고는 항상 활성화
             if (loadingOverlay.style.display !== 'flex') {
                 gameState.isInputActive = true;
-                // 스토리가 저장된 상태면 입력 비활성화
+                
+                // V24 수정: 저장된 상태가 아닐 때만 입력 활성화
                 if (!gameState.isStorySaved) {
                     inputElement.disabled = false;
                     submitButton.disabled = false;
-                    storyTitleInput.disabled = false; // 제목 입력창 활성화
+                    storyTitleInput.disabled = false;
                 } else {
+                    // 저장 완료 상태에서는 입력 및 제출 버튼 비활성화
                     inputElement.disabled = true;
                     submitButton.disabled = true;
-                    storyTitleInput.disabled = true; // 제목 입력창 비활성화
+                    storyTitleInput.disabled = true;
                 }
             }
         };
         
+        // V24 수정: 저장 버튼 및 저장 후 액션 영역 관리
         const updateSaveButtonState = () => {
-            if (gameState.story.length >= 3 && !gameState.isStorySaved) {
+            // 3문장 이상일 때 저장 가능
+            const canSave = gameState.story.length >= 3;
+            
+            if (gameState.isStorySaved) {
+                // Case 1: 저장 완료 상태일 때
+                saveButton.style.display = 'none';
+                postSaveActionsDiv.style.display = 'flex'; // V25 수정: flex로 변경
+            } else if (canSave) {
+                // Case 2: 저장 가능 상태일 때
                 saveButton.disabled = false;
                 saveButton.textContent = '이야기 완성 및 저장';
-                saveButton.style.backgroundColor = '#9c27b0';
-            } else if (gameState.isStorySaved) {
-                saveButton.disabled = true;
-                saveButton.textContent = '✅ 저장 완료';
-                saveButton.style.backgroundColor = '#4CAF50';
+                saveButton.style.display = 'block';
+                postSaveActionsDiv.style.display = 'none';
             } else {
+                // Case 3: 저장 불가능 (3문장 미만) 상태일 때
                 saveButton.disabled = true;
-                saveButton.textContent = '이야기 완성 및 저장 (3문장 이상)';
-                saveButton.style.backgroundColor = '#bdbdbd';
+                saveButton.textContent = `이야기 완성 및 저장 (${gameState.story.length}/3 문장)`;
+                saveButton.style.display = 'block';
+                postSaveActionsDiv.style.display = 'none';
             }
         };
         
@@ -1014,12 +1228,14 @@
 
         // --- 6. 사용자 문장 제출 로직 ---
         window.submitSentence = async () => {
+            // V24 수정: isStorySaved 상태일 때 제출 불가
             if (!gameState.isInputActive || gameState.isStorySaved) {
                 showMessage('입력할 수 있는 상태가 아닙니다. (저장 완료 또는 로딩 중)', 'error');
                 return;
             }
+            // V30 수정: 제출 직전에 userName을 다시 확인하고, 없으면 에러 메시지를 띄우고 종료
             if (!gameState.userName) {
-                 showMessage('이름을 먼저 입력해야 합니다.', 'error');
+                 showMessage('이름을 먼저 입력해야 합니다. 홈 화면에서 이름을 설정하고 다시 모둠에 접속해 주세요.', 'error');
                  return;
             }
 
@@ -1154,14 +1370,11 @@
                     firstSentence: gameState.story[0].text,
                 });
                 
-                // 4. 현재 모둠 문서에 isSaved 플래그 업데이트
-                await window.updateDoc(groupRef, { isSaved: true });
+                // 4. 현재 모둠 문서에 isSaved 플래그 및 제목 업데이트
+                await window.updateDoc(groupRef, { isSaved: true, title: storyTitle });
                 
-                // V21 수정: 저장 완료 후 '다시 시작' 확인 모달 띄우기
-                showCustomConfirmModal(); 
+                showMessage("이야기가 '우리 반 글 모음'에 저장되었습니다! 🎉 이제 다음 활동을 선택하세요.", 'info');
 
-                // showMessage는 confirm modal이 닫힌 후 뜨도록 주석 처리
-                // showMessage("이야기가 '우리 반 글 모음'에 저장되었습니다! 🎉", 'info');
             } catch (error) {
                 console.error("Story Save Error:", error);
                 showMessage("저장 중 오류가 발생했습니다. 다시 시도해 주세요.", 'error');
@@ -1228,19 +1441,122 @@
         
         // 상세 모달 열기
         window.openDetailModal = (storyId, groupTitle, fullStory, authors) => {
+            document.getElementById('gallery-detail-modal').style.display = 'flex';
+            
             detailTitleElement.textContent = groupTitle; // 그룹 타이틀과 제목이 합쳐져서 들어옴
             detailStoryElement.textContent = fullStory;
             document.getElementById('detail-authors').textContent = authors;
             
+            // V28: 현재 스토리 ID를 상태에 저장하고 댓글 로드를 시작
+            gameState.currentStoryId = storyId;
+            loadComments(storyId);
+
             // 이미지 저장을 위해 현재 모달 제목을 저장
             gameState.currentModalStoryTitle = groupTitle.replace(/\[.*\]\s*/, '').trim(); // [X 모둠] 부분을 제거
             if (!gameState.currentModalStoryTitle) gameState.currentModalStoryTitle = '우리반_이야기';
-
-            document.getElementById('gallery-detail-modal').style.display = 'flex';
         };
+
+        // V28: 댓글 로드 및 리스너 설정
+        const loadComments = (storyId) => {
+            const commentsRef = window.getCommentsCollectionRef(storyId);
+            if (!commentsRef) return;
+            
+            // 기존 리스너 해제 (중요: 다른 글을 열 때마다 해제)
+            if (window.unsubscribeComments) {
+                window.unsubscribeComments();
+                window.unsubscribeComments = null;
+            }
+
+            // 실시간 리스너 설정
+            // V29: 댓글 정렬 추가 (Timestamp 기준)
+            const commentsQuery = window.query(commentsRef);
+
+            window.unsubscribeComments = window.onSnapshot(commentsQuery, (snapshot) => {
+                const comments = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    // V28: 타임스탬프를 Date 객체로 변환
+                    comments.push({ ...data, timestamp: data.timestamp ? data.timestamp.toDate() : new Date() });
+                });
+                
+                // 댓글을 시간순으로 정렬 (최신 댓글이 아래로)
+                comments.sort((a, b) => a.timestamp - b.timestamp);
+                
+                renderComments(comments);
+            }, (error) => {
+                console.error("Comments Listener Error:", error);
+                commentListElement.innerHTML = '<li style="color: #c62828; text-align: center;">댓글을 불러오는 데 실패했습니다.</li>';
+            });
+        };
+        
+        // V28: 댓글 목록 UI 렌더링
+        const renderComments = (comments) => {
+            let listHtml = '';
+            if (comments.length === 0) {
+                listHtml = '<li style="text-align: center; color: #888;">첫 댓글을 남겨 응원해 주세요!</li>';
+            } else {
+                comments.forEach(comment => {
+                    const timeString = comment.timestamp.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+                    listHtml += `
+                        <li>
+                            <span class="comment-author">${comment.authorName}</span>
+                            <span>${comment.commentText}</span>
+                            <span style="float: right; color: #999; font-size: 0.8em;">${timeString}</span>
+                        </li>
+                    `;
+                });
+            }
+            commentListElement.innerHTML = listHtml;
+        };
+        
+        // V28: 댓글 제출 로직
+        window.submitComment = async () => {
+            const storyId = gameState.currentStoryId;
+            const commentText = commentInputElement.value.trim();
+
+            if (!storyId) {
+                console.error('Comment Submission Error: Story ID is missing.');
+                alert('이야기가 선택되지 않았습니다. 잠시 후 다시 시도해 주세요.');
+                return;
+            }
+            if (commentText.length < 2) {
+                alert('댓글 내용을 2글자 이상 입력해주세요.');
+                return;
+            }
+            if (!gameState.userName) {
+                alert('이름을 먼저 입력해야 댓글을 달 수 있습니다. 홈 화면에서 이름을 설정해주세요.');
+                return;
+            }
+
+            try {
+                const commentsRef = window.getCommentsCollectionRef(storyId);
+                
+                await window.addDoc(commentsRef, {
+                    authorName: gameState.userName,
+                    commentText: commentText,
+                    timestamp: window.serverTimestamp(),
+                });
+                
+                commentInputElement.value = ''; // 입력창 초기화
+                // UI는 onSnapshot 리스너에 의해 자동으로 업데이트됩니다.
+                
+            } catch (error) {
+                console.error("Comment Submission Error:", error);
+                // V29: 명확한 오류 메시지 제공
+                alert('댓글 등록 중 오류가 발생했습니다. (권한 또는 서버 문제)');
+            }
+        };
+
 
         // 상세 모달 닫기
         window.closeDetailModal = (event) => {
+            // V28: 모달 닫기 전에 댓글 리스너 해제
+            if (window.unsubscribeComments) {
+                window.unsubscribeComments();
+                window.unsubscribeComments = null;
+            }
+            gameState.currentStoryId = null; // ID 초기화
+
             // 모달 바깥쪽 클릭 시 닫기
             if (!event || event.target.id === 'gallery-detail-modal' || event.target.className === 'close-modal-button') {
                 document.getElementById('gallery-detail-modal').style.display = 'none';
@@ -1412,6 +1728,7 @@
             // 로딩 중에는 입력/버튼 비활성화
             inputElement.disabled = true;
             submitButton.disabled = true;
+            storyTitleInput.disabled = true; // 제목도 비활성화
         };
 
         const hideLoading = () => {
